@@ -71,25 +71,14 @@ shinyServer(function(input, output) {
 
   })
   
-  output$pop_table <- DT::renderDT({
-
-    if (is.null(map_data())) {
-      return(NULL)
-    }
-    # map_data_no_geom <- map_data()
-    # st_geometry(map_data_no_geom) <- NULL
-    # output_table <- as.data.frame(map_data_no_geom)
-    # DT::datatable(output_table,
-    #               options = list(pageLength = 15),
-    #               rownames = F)
-  })
 
   
-  # output$pop_map <- renderLeaflet({
-  # 
-  #   if (is.null(request_list())) {
-  #     return(map %>% setView(0, 0, zoom = 2))
-  #   }
+  output$pop_map <- renderLeaflet({
+
+    if (is.null(map_data())) {
+      return(map %>% setView(0, 0, zoom = 2))
+    }
+  })
   #   
   #   extracted_stat = as.data.frame(map_data())[,input$stat]
   # 
@@ -127,26 +116,26 @@ shinyServer(function(input, output) {
   #     #                  options = layersControlOptions(collapsed = F))
   # })
   
-  # output$downloadData <- downloadHandler(
-  #   filename = function() {
-  #     paste("extracted_population.csv")
-  #   },
-  #   content = function(file) {
-  #     map_data_no_geom <- map_data()
-  #     st_geometry(map_data_no_geom) <- NULL
-  #     output_table <- as.data.frame(map_data_no_geom)
-  #     write.csv(output_table, file, row.names = FALSE)
-  #   }
-  # )
-  # 
-  # output$downloadGeoData <- downloadHandler(
-  #   filename = function() {
-  #     paste("extracted_population.geojson")
-  #   },
-  #   content = function(file) {
-  #     st_write(map_data(), file)
-  #   }
-  # )
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("extracted_population.csv")
+    },
+    content = function(file) {
+      map_data_no_geom <- map_data()
+      st_geometry(map_data_no_geom) <- NULL
+      output_table <- as.data.frame(map_data_no_geom)
+      write.csv(output_table, file, row.names = FALSE)
+    }
+  )
+
+  output$downloadGeoData <- downloadHandler(
+    filename = function() {
+      paste("extracted_population.geojson")
+    },
+    content = function(file) {
+      st_write(map_data(), file)
+    }
+  )
 
 }) 
   

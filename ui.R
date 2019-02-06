@@ -59,8 +59,8 @@ dashboardPage(
                   downloadButton("downloadData", "Download table"),
                   downloadButton("downloadGeoData", "Download geojson")),
             
-                             box(leafletOutput("pop_map", height = 800, width = "100%"), width = 9),
-                             box(DT::DTOutput('pop_table'), width = 12))
+                             box(leafletOutput("pop_map", height = 800, width = "100%"), width = 9))
+                             #box(DT::DTOutput('pop_table'), width = 12))
              )
 )
 
