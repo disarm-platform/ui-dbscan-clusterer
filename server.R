@@ -1,0 +1,162 @@
+library(raster)
+library(sp)
+library(leaflet)
+library(RANN)
+library(rgeos)
+library(rjson)
+library(httr)
+library(wesanderson)
+library(readr)
+library(stringi)
+library(DT)
+library(ggplot2)
+library(velox)
+library(sf)
+library(RColorBrewer)
+library(geojsonio)
+library(base64enc)
+
+
+# Define map
+map <- leaflet(max) %>%
+  addTiles(
+    "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}{r}.png"
+  )
+
+# Get Worldpop data
+#worldpop_africa <- velox("/Users/hughsturrock/Dropbox/Random/AFR_PPP_2015_adj_v2.tif")
+
+
+shinyServer(function(input, output) {
+  
+  
+  request_list <- reactive({
+    
+    
+    geo_in <- input$geo_file_input
+    
+    
+    if (is.null(geo_in) | length(input$geo_text_input)==1)
+      return(NULL)
+    
+    if (is.null(c(input$buffer, input$Max_Size, input$return_type)))
+      return(NULL)
+    
+    if (length(input$parcel==1))
+      return(NULL)
+    
+    # Might need other is.nulls for the other params here
+    
+    # Get data
+    if(!is.null(geo_in)){
+      input_geo <- geojson_list(st_read(geo_in$datapath))
+    }else{
+      input_geo <- input$geo_text_input
+    }
+    
+    parcel_by <- input$parcel
+    
+    # PAckage up
+    input_data_list <- list(
+      subject = input_geo,
+      parcel_by = parcel_by,
+      max_num = input$Max_Size,
+      max_dist_m = input$buffer,
+      return_type = input$return_type
+    )
+    
+    return(input_data_list)
+    
+  })
+  
+  map_data <- eventReactive(input$goClusterYourself, {
+    
+    print("I'm here")
+    
+    response <-  httr::POST(url = "https://en44o61b64j8n.x.pipedream.net",
+                            body = as.json(request_list()),
+                            content_type_json())
+    return(response)
+
+  })
+  
+  output$pop_table <- DT::renderDT({
+
+    if (is.null(map_data())) {
+      return(NULL)
+    }
+    # map_data_no_geom <- map_data()
+    # st_geometry(map_data_no_geom) <- NULL
+    # output_table <- as.data.frame(map_data_no_geom)
+    # DT::datatable(output_table,
+    #               options = list(pageLength = 15),
+    #               rownames = F)
+  })
+
+  
+  # output$pop_map <- renderLeaflet({
+  # 
+  #   if (is.null(request_list())) {
+  #     return(map %>% setView(0, 0, zoom = 2))
+  #   }
+  #   
+  #   extracted_stat = as.data.frame(map_data())[,input$stat]
+  # 
+  #   # Define color palette
+  #   pal <-
+  #     colorNumeric(brewer.pal(9, "Greens")[5:9],
+  #                  extracted_stat)
+  #   
+  #   labels <- sprintf(
+  #     paste("<strong>Population: </strong>",
+  #           extracted_stat)
+  #   ) %>% lapply(htmltools::HTML)
+  #   
+  #   # Map
+  #   input_poly_sp <- as(map_data(), "Spatial")
+  #   map %>% addPolygons(
+  #     data = input_poly_sp,
+  #     color = "#696969",
+  #     fillColor = pal(extracted_stat),
+  #     fillOpacity = 0.6,
+  #     weight = 4,
+  #     highlightOptions = highlightOptions(
+  #       weight = 5,
+  #       color = "#FF0080",
+  #       bringToFront = TRUE,
+  #       fillOpacity = 0.7
+  #     ),
+  #     label = labels) %>%
+  #       leaflet::addLegend(pal = pal, 
+  #                          values = extracted_stat,
+  #                          title = "Population")
+  # 
+  #     
+  #     # addLayersControl(overlayGroups = c("Survey points"),
+  #     #                  options = layersControlOptions(collapsed = F))
+  # })
+  
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("extracted_population.csv")
+    },
+    content = function(file) {
+      map_data_no_geom <- map_data()
+      st_geometry(map_data_no_geom) <- NULL
+      output_table <- as.data.frame(map_data_no_geom)
+      write.csv(output_table, file, row.names = FALSE)
+    }
+  )
+  
+  output$downloadGeoData <- downloadHandler(
+    filename = function() {
+      paste("extracted_population.geojson")
+    },
+    content = function(file) {
+      st_write(map_data(), file)
+    }
+  )
+
+}) 
+  
+
