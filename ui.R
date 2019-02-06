@@ -46,7 +46,6 @@ dashboardPage(
                  numericInput("Max_Size", 
                               "Choose max no. structures per cluster", 
                               min = 1,
-                              #max = 100,
                               value = 50),
                  
                  selectInput("return_type", "Return type",
@@ -56,11 +55,10 @@ dashboardPage(
                 
                 actionButton("goClusterYourself", "Get clusters"),
               
-                  downloadButton("downloadData", "Download table"),
-                  downloadButton("downloadGeoData", "Download geojson")),
+                downloadButton("downloadGeoData", "Download geojson")),
             
-                             box(leafletOutput("pop_map", height = 800, width = "100%"), width = 9))
-                             #box(DT::DTOutput('pop_table'), width = 12))
+         box(leafletOutput("pop_map", height = 800, width = "100%"), width = 9))
+
              )
 )
 

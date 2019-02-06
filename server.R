@@ -23,8 +23,6 @@ map <- leaflet(max) %>%
     "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}{r}.png"
   )
 
-# Get Worldpop data
-#worldpop_africa <- velox("/Users/hughsturrock/Dropbox/Random/AFR_PPP_2015_adj_v2.tif")
 
 
 shinyServer(function(input, output) {
@@ -79,54 +77,7 @@ shinyServer(function(input, output) {
       return(map %>% setView(0, 0, zoom = 2))
     }
   })
-  #   
-  #   extracted_stat = as.data.frame(map_data())[,input$stat]
-  # 
-  #   # Define color palette
-  #   pal <-
-  #     colorNumeric(brewer.pal(9, "Greens")[5:9],
-  #                  extracted_stat)
-  #   
-  #   labels <- sprintf(
-  #     paste("<strong>Population: </strong>",
-  #           extracted_stat)
-  #   ) %>% lapply(htmltools::HTML)
-  #   
-  #   # Map
-  #   input_poly_sp <- as(map_data(), "Spatial")
-  #   map %>% addPolygons(
-  #     data = input_poly_sp,
-  #     color = "#696969",
-  #     fillColor = pal(extracted_stat),
-  #     fillOpacity = 0.6,
-  #     weight = 4,
-  #     highlightOptions = highlightOptions(
-  #       weight = 5,
-  #       color = "#FF0080",
-  #       bringToFront = TRUE,
-  #       fillOpacity = 0.7
-  #     ),
-  #     label = labels) %>%
-  #       leaflet::addLegend(pal = pal, 
-  #                          values = extracted_stat,
-  #                          title = "Population")
-  # 
-  #     
-  #     # addLayersControl(overlayGroups = c("Survey points"),
-  #     #                  options = layersControlOptions(collapsed = F))
-  # })
-  
-  output$downloadData <- downloadHandler(
-    filename = function() {
-      paste("extracted_population.csv")
-    },
-    content = function(file) {
-      map_data_no_geom <- map_data()
-      st_geometry(map_data_no_geom) <- NULL
-      output_table <- as.data.frame(map_data_no_geom)
-      write.csv(output_table, file, row.names = FALSE)
-    }
-  )
+
 
   output$downloadGeoData <- downloadHandler(
     filename = function() {
