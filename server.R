@@ -58,7 +58,7 @@ shinyServer(function(input, output) {
     # PAckage up
     request_list <- list(
       subject = input_geo,
-      parcel_by = parcel_by,
+      parcel_by = unlist(strsplit(parcel_by, ",")),
       max_num = input$Max_Size,
       max_dist_m = input$buffer,
       return_type = input$return_type
