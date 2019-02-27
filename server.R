@@ -60,7 +60,7 @@ shinyServer(function(input, output) {
     )
     
     response <-
-      httr::POST(url = "https://en44o61b64j8n.x.pipedream.net",
+      httr::POST(url = "https://faas.srv.disarm.io/function/fn-dbscan-clusterer",
                  body = as.json(request_list),
                  content_type_json())
     return(response)
