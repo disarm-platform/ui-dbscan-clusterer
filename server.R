@@ -64,11 +64,16 @@ shinyServer(function(input, output) {
     if(length(parcel_by)<=1){
       request_list$parcel_by <- NULL
     }
-    
+
     response <-
       httr::POST(url = "https://faas.srv.disarm.io/function/fn-dbscan-clusterer",
                  body = as.json(request_list),
                  content_type_json())
+    
+    # Check status
+    if (response$status_code != 200) {
+      stop('Sorry, there was a problem with your request - check your inputs and try again')
+    }
 
     response_content <- content(response)
     return(response_content$result)

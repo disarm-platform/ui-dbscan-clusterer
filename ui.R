@@ -24,13 +24,13 @@ dashboardPage(
                     radioButtons(
                       "GeoJSON_type",
                       "Subject input type",
-                      choices = c("Local file", "GeoJSON"),
+                      choices = c("Local file", "GeoJSON or URL to GeoJSON"),
                       selected = "Local file"
                     ),
                     conditionalPanel(condition = "input.GeoJSON_type == 'Local file'",
                                      fileInput("geo_file_input", "")),
                     conditionalPanel(
-                      condition = "input.GeoJSON_type == 'GeoJSON'",
+                      condition = "input.GeoJSON_type == 'GeoJSON or URL to GeoJSON'",
                       textInput(
                         "geo_text_input",
                         label = NULL,
