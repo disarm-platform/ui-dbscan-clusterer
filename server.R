@@ -15,6 +15,7 @@ library(sf)
 library(RColorBrewer)
 library(geojsonio)
 library(base64enc)
+library(magrittr)
 
 rm(list=ls())
 
@@ -109,6 +110,21 @@ shinyServer(function(input, output) {
     }
     
     print("here 3")
+    
+    # Check size for plotting
+    which_exists <- sapply(c("hull_polys", "subject_points"), exists) %>% which() %>% names()
+    if(which_exists=="hull_polys"){
+      if(nrow(hull_polys)>1000){
+        stop("Sorry, too many clusters to display. Please download full dataset")
+      }
+    }
+    
+    if(which_exists=="subject_points"){
+      if(nrow(subject_points)>1000){
+        stop("Sorry, too many points to display. Please download full dataset")
+      }
+    }
+  
     
     # Map results
     # Define map
