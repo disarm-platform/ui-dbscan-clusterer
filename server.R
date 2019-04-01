@@ -16,18 +16,14 @@ library(RColorBrewer)
 library(geojsonio)
 library(base64enc)
 
-
-# Define map
-map <- leaflet() %>%
-  addProviderTiles(
-    "CartoDB.Positron"
-  )
-
-
+rm(list=ls())
 
 shinyServer(function(input, output) {
   
+
+  
   map_data <- eventReactive(input$goClusterYourself, {
+    
     geo_in <- input$geo_file_input
     
     withProgress(message = 'Clustering points..',{
@@ -82,19 +78,23 @@ shinyServer(function(input, output) {
   })
   
   
-  
+
   output$pop_map <- renderLeaflet({
 
     if(input$goClusterYourself[1]==0){
-      return(map %>% setView(0,0,zoom=2))
+      return(leaflet() %>%
+                   addProviderTiles(
+                     "CartoDB.Positron"
+                   ) %>% setView(0,0,zoom=2))
     }
 
     # Get output
     map_data <- map_data()
     print("here 1")
+
     # Get response if there is one and define color palettes
     if (input$return_type == "subject" | input$return_type == "both") {
-      subject_points <- st_read(as.json(
+      subject_points <<- st_read(as.json(
         map_data$result$subject
       ))
       cluster_pal <-
@@ -103,12 +103,19 @@ shinyServer(function(input, output) {
     print("here 2")
 
     if (input$return_type == "hull" | input$return_type == "both") {
-      hull_polys <- st_read(as.json(
-        map_data$result$chull_polys
+      hull_polys <<- st_read(as.json(
+        map_data$result$hull
       ))
     }
+    
     print("here 3")
+    
     # Map results
+    # Define map
+    map <- leaflet() %>%
+      addProviderTiles(
+        "CartoDB.Positron"
+      )
     if (input$return_type == "subject") {
       return(map %>% addCircleMarkers(
         data = subject_points,
@@ -135,15 +142,46 @@ shinyServer(function(input, output) {
     }
     
   })
-  
+
+
   
   output$downloadGeoData <- downloadHandler(
     filename = function() {
-      paste("extracted_population.geojson")
+      paste0("output.zip")
     },
-    content = function(file) {
-      st_write(map_data(), file)
-    }
+    content = function(fname) {
+      fs <- c()
+  
+      output_data <- list()
+      if(input$return_type=="both"){
+        which_layer_exists <- c("hull_polys", "subject_points")
+                for(i in 1:2){
+                  output_data[[i]] <- get0(c("hull_polys", "subject_points")[i])
+                }
+      }
+      
+        if(input$return_type=="hull"){
+          which_layer_exists <- "hull_polys"
+            output_data[[1]] <- hull_polys
+        }
+      
+      if(input$return_type=="subject"){
+          which_layer_exists <- "subject"
+          output_data[[1]] <- subject_points
+          }
+
+      tmpdir <- tempdir()
+      setwd(tempdir())
+      for (i in 1:length(output_data)) {
+        path <- paste0(which_layer_exists[i], ".geojson")
+        fs <- c(fs, path)
+        st_write(output_data[[i]], path, delete_dsn=TRUE)
+      }
+      zip(zipfile=fname, files=fs)
+    },
+    contentType = "application/zip"
   )
+
+
   
 })
