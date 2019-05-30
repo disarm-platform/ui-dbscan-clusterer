@@ -17,7 +17,17 @@ dashboardPage(
                 fluidRow(
                   includeCSS("styles.css"),
                   
-                  box(
+                  box(p("This app allows you to cluster points/polygons into groups
+                  using", a("this", href = "https://github.com/disarm-platform/fn-dbscan-clusterer/blob/master/SPECS.md"),
+                        " algorithm. Clusters can be split by lines/polygons using the 'Parcel by' input.
+                      You can run with your own data using the input boxes below, 
+                        or using the prepopulated demo inputs:"),
+                      
+                      br(#tags$ol(
+                        tags$li(strong("subject"), "- Sample of OSM building centroids (Swaziland)"),
+                        tags$li(strong("parcel_by"), "- OSM roads (Swaziland)")
+                      ),
+                      
                     width = 3,
                     height = 800,
                     
@@ -25,7 +35,7 @@ dashboardPage(
                       "GeoJSON_type",
                       "Subject input type",
                       choices = c("Local file", "GeoJSON or URL to GeoJSON"),
-                      selected = "Local file"
+                      selected = "GeoJSON or URL to GeoJSON"
                     ),
                     conditionalPanel(condition = "input.GeoJSON_type == 'Local file'",
                                      fileInput("geo_file_input", "")),
@@ -34,12 +44,12 @@ dashboardPage(
                       textInput(
                         "geo_text_input",
                         label = NULL,
-                        value = NULL,
-                        placeholder = "GeoJSON string or URL"
+                        value = "https://ds-faas.storage.googleapis.com/algo_test_data/general/build_crop.geojson"
                       )
                     ),
                     
-                    textInput("parcel", "Parcel by", placeholder = "Comma separated URLs"),
+                    textInput("parcel", "Parcel by", 
+                              value = "https://ds-faas.storage.googleapis.com/algo_test_data/general/osm_roads_swz.geojson"),
                     
                     numericInput(
                       "buffer",
