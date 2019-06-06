@@ -28,8 +28,12 @@ dashboardPage(
                         tags$li(strong("parcel_by"), "- OSM roads (Swaziland)")
                       ),
                       
+                      actionButton("useDemo", "USE DEMO DATA"),
+                      
                     width = 3,
-                    height = 800,
+                    height = 900,
+                    
+                    br(""),
                     
                     radioButtons(
                       "GeoJSON_type",
@@ -40,17 +44,32 @@ dashboardPage(
                     conditionalPanel(condition = "input.GeoJSON_type == 'Local file'",
                                      fileInput("geo_file_input", "")),
                     conditionalPanel(
-                      condition = "input.GeoJSON_type == 'GeoJSON or URL to GeoJSON'",
+                      condition = "input.GeoJSON_type == 'GeoJSON or URL to GeoJSON' & 
+                      input.useDemo ==0",
                       textInput(
                         "geo_text_input",
+                        label = NULL
+                      )
+                    ),
+                    conditionalPanel(
+                      condition = "input.useDemo > 0",
+                      textInput(
+                        "geo_demo_input",
                         label = NULL,
                         value = "https://ds-faas.storage.googleapis.com/algo_test_data/general/build_crop.geojson"
                       )
                     ),
                     
+                    conditionalPanel(
+                      condition = "input.useDemo == 0",
                     textInput("parcel", "Parcel by", 
-                              value = "https://ds-faas.storage.googleapis.com/algo_test_data/general/osm_roads_swz.geojson"),
+                              placeholder = "URL to GeoJSON")),
                     
+                    conditionalPanel(
+                      condition = "input.useDemo > 0",
+                      textInput("parcel_demo", "Parcel by", 
+                                value = "https://ds-faas.storage.googleapis.com/algo_test_data/general/osm_roads_swz.geojson")),
+
                     numericInput(
                       "buffer",
                       "Choose buffer size (m)",
@@ -87,8 +106,8 @@ dashboardPage(
                   ),
                   
                   box(
-                    leafletOutput("pop_map", height = 750, width = "100%"),
-                    height = 800,
+                    leafletOutput("pop_map", height = 850, width = "100%"),
+                    height = 900,
                     width = 9
                   )
                 ))

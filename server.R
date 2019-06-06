@@ -43,10 +43,18 @@ shinyServer(function(input, output) {
     if (!is.null(geo_in)) {
       input_geo <- geojson_list(st_read(geo_in$datapath))
     } else{
+      if(!(input$geo_text_input == "")){
       input_geo <- input$geo_text_input
+      }else{
+        input_geo <- input$geo_demo_input  
+      }
     }
 
-    parcel_by <- input$parcel
+    if(!(input$parcel == "")){
+      parcel_by <- input$parcel
+    }else{
+      parcel_by <- input$parcel_demo
+    }
 
     
     # PAckage up
