@@ -50,23 +50,17 @@ shinyServer(function(input, output) {
       }
     }
 
-    if(!(input$parcel == "")){
-      parcel_by <- input$parcel
-    }else{
-      parcel_by <- input$parcel_demo
-    }
 
-    
     # PAckage up
     request_list <- list(
       subject = input_geo,
-      parcel_by = unlist(strsplit(stri_replace_all_regex(str=parcel_by, pattern=" ", repl=""), ",")),
+      parcel_by = unlist(strsplit(stri_replace_all_regex(str=input$parcel, pattern=" ", repl=""), ",")),
       max_num = input$Max_Size,
       max_dist_m = input$buffer,
       return_type = input$return_type
     )
 
-    if(nchar(parcel_by)==0){
+    if(nchar(input$parcel)==0){
       request_list$parcel_by <- NULL
     }
 
@@ -122,15 +116,22 @@ shinyServer(function(input, output) {
     # Check size for plotting
     which_exists <- sapply(c("hull_polys", "subject_points"), exists) %>% which() %>% names()
     if(which_exists=="hull_polys"){
-      if(nrow(hull_polys)>1000){
-        stop("Sorry, too many clusters to display. Please download full dataset")
-      }
+      validate(
+        need(nrow(hull_polys)<=4000, "Too many clusters to display. Please download full dataset")
+      )
     }
+      # 
+      # if(nrow(hull_polys)>4000){
+      #   hull_polys_to_plot <- hull_polys[1:1000,]
+      # }else{
+      #   hull_polys_to_plot <- hull_polys
+      # }
+
     
     if(which_exists=="subject_points"){
-      if(nrow(subject_points)>1000){
-        stop("Sorry, too many points to display. Please download full dataset")
-      }
+        validate(
+          need(nrow(subject_points)<=4000, "Too many points to display. Please download full dataset")
+        )
     }
   
     
