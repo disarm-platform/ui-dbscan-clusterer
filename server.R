@@ -98,7 +98,7 @@ shinyServer(function(input, output) {
     # Get response if there is one and define color palettes
     if (input$return_type == "subject" | input$return_type == "both") {
       subject_points <<- st_read(as.json(
-        map_data$result$subject
+        map_data$result$subject, quiet=TRUE
       ))
       cluster_pal <-
         colorNumeric(brewer.pal(10, "Set3"), as.numeric(subject_points$cluster_id))
@@ -107,7 +107,7 @@ shinyServer(function(input, output) {
 
     if (input$return_type == "hull" | input$return_type == "both") {
       hull_polys <<- st_read(as.json(
-        map_data$result$hull
+        map_data$result$hull, quiet=TRUE
       ))
     }
     
@@ -116,8 +116,8 @@ shinyServer(function(input, output) {
     # Check size for plotting
     which_exists <- sapply(c("hull_polys", "subject_points"), exists) %>% which() %>% names()
     if(which_exists=="hull_polys"){
-      validate(
-        need(nrow(hull_polys)<=4000, "Too many clusters to display. Please download full dataset")
+      shiny::validate(
+        shiny::need(nrow(hull_polys)<=4000, "Too many clusters to display. Please download full dataset")
       )
     }
       # 
@@ -129,8 +129,8 @@ shinyServer(function(input, output) {
 
     
     if(which_exists=="subject_points"){
-        validate(
-          need(nrow(subject_points)<=4000, "Too many points to display. Please download full dataset")
+      shiny::validate(
+        shiny::need(nrow(subject_points)<=4000, "Too many points to display. Please download full dataset")
         )
     }
   
